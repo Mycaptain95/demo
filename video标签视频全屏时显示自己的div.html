@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>video</title>
+    <meta charset="utf-8">
+</head>
+<style type="text/css">
+    #my-div{
+        background: rgba(50,50,50,0.8);
+        position: absolute;
+        float: left;
+        left: 50%;
+        top: 50%;
+        width: 100px;
+        height: 100px;
+		color: #fff;
+		z-index: 1;
+    }
+	#video {
+		width: 100%;
+		height: 100%;
+	}
+</style>
+<body>
+
+<div id="player">
+    <div id="my-div">我的DIV</div>
+    <video controls autoplay id="video" src="https://qn2.tangguocode.com/cc2d71e870524a8d9322becdb103f312"></video>
+</div>
+
+<button onclick="full()">全屏</button>
+<script>
+function getreqfullscreen (root) {
+    var root = document.documentElement
+    return root.requestFullscreen || root.webkitRequestFullscreen || root.mozRequestFullScreen || root.msRequestFullscreen
+}
+var fullscreen = getreqfullscreen();
+function full() {
+    fullscreen.call(document.getElementById("player"));
+}
+</script>
+</body>
+</html>
