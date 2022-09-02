@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- 参考
+ * https://juejin.cn/post/6844904066301050893 -->
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- //Android 禁止屏幕旋转 -->
+    <meta name="screen-orientation" content="portrait">
+    <!-- //全屏显示 -->
+    <meta name="full-screen" content="yes">
+    <!-- //UC应用模式，使用了application这种应用模式后，页面讲默认全屏，禁止长按菜单，禁止收拾，标准排版，以及强制图片显示。 -->
+    <meta name="browsermode" content="application">
+    <!-- //QQ强制竖屏 -->
+    <meta name="x5-orientation" content="portrait">
+    <!-- //QQ强制全屏 -->
+    <meta name="x5-fullscreen" content="true">
+    <!-- 关闭电话号码识别 -->
+    <meta name="format-detection" content="telephone=no" />
+    <!-- 关闭邮箱识别（Android） -->
+    <meta name="format-detection" content="email=no" />
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app">
+        <!-- 手动开启电话号码识别 -->
+        <a href="tel:123456">123456</a>
+        <!-- 开启长按邮箱地址弹出邮件发送的功能 -->
+        <a mailto:dooyoe@gmail.com>dooyoe@gmail.com</a>
+
+    </div>
+</body>
+
+<script>
+    // 移动端click屏幕产生200-300 ms的延迟响应
+    // fastclick可以解决在手机上点击事件的300ms延迟
+    // zepto的touch模块，tap事件也是为了解决在click的延迟问题
+
+    // audio 和 video 在 ios 和 andriod 中自动播放
+    // 这个不是bug，由于自动播放网页中的音频或视频，会给用户带来一些困扰或者不必要的流量消耗，所以苹果系统和安卓系统通常都会禁止自动播放和使用 JS 的触发播放，必须由用户来触发才可以播放。加入自动触发播放的代码
+    $('html').one('touchstart', function () {
+        audio.play()
+    })
+
+    // iOS 上拉边界下拉出现空白
+    // 手指按住屏幕下拉，屏幕顶部会多出一块白色区域。手指按住屏幕上拉，底部多出一块白色区域。
+    // 在 iOS 中，手指按住屏幕上下拖动，会触发 touchmove 事件。这个事件触发的对象是整个 webview 容器，容器自然会被拖动，剩下的部分会成空白。
+    document.body.addEventListener(
+        'touchmove',
+        function (e) {
+            if (e._isScroller) return
+            // 阻止默认事件
+            e.preventDefault()
+        },
+        {
+            passive: false
+        }
+    )
+
+    // ios 日期转换 NAN 的问题
+    // 将日期字符串的格式符号替换成'/'
+    'yyyy-MM-dd'.replace(/-/g, '/')
+
+
+    // 软键盘问题 👇
+
+    // IOS 键盘弹起挡住原来的视图
+    // 可以通过监听移动端软键盘弹起Element.scrollIntoViewIfNeeded（Boolean）方法用来将不在浏览器窗口的可见区域内的元素滚动到浏览器窗口的可见区域。 如果该元素已经在浏览器窗口的可见区域内，则不会发生滚动。
+    // true，则元素将在其所在滚动区的可视区域中居中对齐。
+    // false，则元素将与其所在滚动区的可视区域最近的边缘对齐。 根据可见区域最靠近元素的哪个边缘，元素的顶部将与可见区域的顶部边缘对准，或者元素的底部边缘将与可见区域的底部边缘对准
+    window.addEventListener('resize', function () {
+        if (
+            document.activeElement.tagName === 'INPUT' ||
+            document.activeElement.tagName === 'TEXTAREA'
+        ) {
+            window.setTimeout(function () {
+                if ('scrollIntoView' in document.activeElement) {
+                    document.activeElement.scrollIntoView(false)
+                } else {
+                    document.activeElement.scrollIntoViewIfNeeded(false)
+                }
+            }, 0)
+        }
+    })
+
+
+    // onkeyUp 和 onKeydown 兼容性问题
+    // IOS 中 input 键盘事件 keyup、keydown、等支持不是很好, 用 input 监听键盘 keyup 事件，在安卓手机浏览器中没有问题，但是在 ios 手机浏览器中用输入法输入之后，并未立刻相应 keyup 事件
+
+
+    // IOS12 输入框难以点击获取焦点，弹不出软键盘
+    // 定位找到问题是 fastclick.js 对 IOS12 的兼容性，可在 fastclick.js 源码或者 main.js 做以下修改
+    FastClick.prototype.focus = function (targetElement) {
+        var length
+        if (
+            deviceIsIOS &&
+            targetElement.setSelectionRange &&
+            targetElement.type.indexOf('date') !== 0 &&
+            targetElement.type !== 'time' &&
+            targetElement.type !== 'month'
+        ) {
+            length = targetElement.value.length
+            targetElement.setSelectionRange(length, length)
+            targetElement.focus()
+        } else {
+            targetElement.focus()
+        }
+    }
+
+    // IOS 键盘收起时页面没用回落，底部会留白
+    // 通过监听键盘回落时间滚动到原来的位置
+    window.addEventListener('focusout', function () {
+        window.scrollTo(0, 0)
+    })
+
+    //input输入框弹起软键盘的解决方案。
+    var bfscrolltop = document.body.scrollTop
+    $('input')
+        .focus(function () {
+            document.body.scrollTop = document.body.scrollHeight
+            //console.log(document.body.scrollTop);
+        })
+        .blur(function () {
+            document.body.scrollTop = bfscrolltop
+            //console.log(document.body.scrollTop);
+        })
+
+
+    // IOS 下 fixed 失效的原因
+    // 软键盘唤起后，页面的 fixed 元素将失效，变成了 absolute，所以当页面超过一屏且滚动时，失效的 fixed 元素就会跟随滚动了。不仅限于 type=text 的输入框，凡是软键盘（比如时间日期选择、select 选择等等）被唤起，都会遇到同样地问题。
+    // 解决方法: 不让页面滚动，而是让主体部分自己滚动,主体部分高度设为 100%，overflow:scroll
+    /**
+    <body>
+      <div class='warper'>
+        <div class='main'></div>
+      <div>
+      <div class="fix-bottom"></div>
+    </body>
+     */
+
+    /**
+    .warper {
+        position: absolute;
+        width: 100%;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        overflow-y: scroll;
+        -webkit-overflow-scrolling: touch; // 解决ios滑动不流畅问题
+    }
+    .fix-bottom {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+    } 
+     */
+</script>
+
+</html>

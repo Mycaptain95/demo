@@ -1,0 +1,70 @@
+/** 
+ * 参考
+ * https://juejin.cn/post/6844904066301050893
+ *
+*/
+
+
+@placeHolderColor: #c7c7c7;
+
+// 屏蔽用户选择
+div {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+// 清除输入框内阴影
+// 在 iOS 上，输入框默认有内部阴影,以这样关闭
+div {
+    -webkit-appearance: none;
+}
+
+// 禁止保存或拷贝图像
+img {
+    -webkit-touch-callout: none;
+}
+
+// 设置 input 里面 placeholder 字体的颜色
+input::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder {
+    color: @placeHolderColor;
+}
+
+input:-moz-placeholder,
+textarea:-moz-placeholder {
+    color: @placeHolderColor;
+}
+
+input:-ms-input-placeholder,
+textarea:-ms-input-placeholder {
+    color: @placeHolderColor;
+}
+
+
+// 用户设置字号放大或者缩小导致页面布局错误
+// 设置字体禁止缩放
+body {
+    -webkit-text-size-adjust: 100% !important;
+    text-size-adjust: 100% !important;
+    -moz-text-size-adjust: 100% !important;
+}
+
+// android系统中元素被点击时产生边框
+// 部分android系统点击一个链接，会出现一个边框或者半透明灰色遮罩, 不同生产商定义出来额效果不一样
+a,
+button,
+input,
+textarea {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    -webkit-user-modify: read-write-plaintext-only;
+}
+
+// iOS 滑动不流畅
+// ios 手机上下滑动页面会产生卡顿，手指离开页面，页面立即停止运动。整体表现就是滑动不流畅，没有滑动惯性。 iOS 5.0 以及之后的版本，滑动有定义有两个值 auto 和 touch，默认值为 auto
+.wrapper {
+    -webkit-overflow-scrolling: touch;
+}
